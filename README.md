@@ -1,7 +1,3 @@
-# ColorTransformR
+# Color Transform in R
 
-Color Space Tranform in R
-
-This is a line from RStudio
-
-Need to connect
+This project is a collection of R scripts to transform images into different color data, ready to further analysis.
