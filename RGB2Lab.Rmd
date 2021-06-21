@@ -1,50 +1,72 @@
 ---
-title: "R Notebook"
+title: "R Notebook for Color Transformation RGB2Lab"
 output: html_notebook
 ---
 
-This is the code to transform an image into a Lab csv for further analysis. 
+### **Objective**
+
+This is the code to transform all images in a folder (must be 24 bit RGB images) into a single CSV file containing the color information of each pixel in Lab color space.
+
+The output file is organized as follows:
+
+Columns:
+
+1.  Filename
+
+2.  L
+
+3.  a
+
+4.  b
+
+Rows:
+
+Each row corresponds to the respective information of a single pixel in the images.
+
+### **Limitations**
+
 It only works for 24bit images.
+
+### Code
 
 ```{r}
 ## Load up packages I'm going to use first.
 library(imager) 
 library(data.table)
 
-#from Local Computer
-#file <- system.file('extdata/lulo1.bmp',package='imager')
-#image <- load.image(file)
+#set the working directory from which the files will be read from
+my_path="C:/Users/usuario/Desktop/Work/Research/Papers/0_RipenessFreshnessAnaMaria/Frescura_frutas/Lulo/24bitBMP/P3"
+setwd(my_path)
 
-#C:\Users\usuario\Desktop\Work\Research\Papers\0_RipenessFreshnessAnaMaria\Frescura_frutas\Lulo\24bitBMP
-image <- load.image('C:/Users/usuario/Desktop/Work/Research/Papers/0_RipenessFreshnessAnaMaria/Frescura_frutas/Guayaba/24bitBMP/P3E5Guayaba.bmp')
-#dim(image)
-plot(image)
+#create a list of the files from your target directory
+file_list <- list.files(path=my_path)
 
-image.lab <- RGBtoLab(image) #solo funciona para imagenes de 24 bit
+DTP = data.table( Name=character() , L=numeric() , a=numeric() , b=numeric() )
 
-#chan <- channels(image.lab) #Extract the channels as a list of images
-#names(chan) <- c("L","a","b")
-
-#print(chan[[1]])  # Luminance Channel
-#print(chan[[2]])  # a channel
-#print(chan[[3]])  # b channel
-
-l <- data.table(image.lab[,,1,1])
-
-#DTP = data.table(  x=numeric(), y=numeric() ,L=numeric() , a=numeric() , b=numeric() )
-DTP = data.table(  L=numeric() , a=numeric() , b=numeric() )
-for(i in 1:nrow(l))
+for (k in 1:length(file_list))
 {
-  for(j in 1:ncol(l))
-  {
-    #DT2 = data.table(x=i,y=j,L=image.lab[i,j,,1],a=image.lab[i,j,,2],b=image.lab[i,j,,3])
-    DT2 = data.table(L=image.lab[i,j,,1],a=image.lab[i,j,,2],b=image.lab[i,j,,3])
-    DTP <- rbindlist(list(DTP, DT2)) #adding row info to DT
-  }
+    image <- load.image(file_list[k])
+    # plot(image)
+    image.lab <- RGBtoLab(image) #solo funciona para imagenes de 24 bit
+    l <- data.table(image.lab[,,1,1])
+    
+    for(i in 1:nrow(l))
+    {
+      for(j in 1:ncol(l))
+      {
+          DT2 = data.table(Name=file_list[k],L=image.lab[i,j,,1],a=image.lab[i,j,,2],b=image.lab[i,j,,3])
+          DTP <- rbindlist(list(DTP, DT2)) #adding row info to DT, #for each iteration, bind the new data to the building dataset
+      }
+    }
+
 }
 
-write.csv2(DTP, file = "C:/Users/usuario/Desktop/Work/Research/Papers/0_RipenessFreshnessAnaMaria/Frescura_frutas/Guayaba/24bitBMP/P3E5Guayaba.csv",row.names = FALSE)
+write.csv2(DTP, file = "result.csv",row.names = FALSE)
 
 ```
+
+```{r}
+
 ```
 
+\`\`\`
